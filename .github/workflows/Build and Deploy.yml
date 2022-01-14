@@ -2,7 +2,10 @@ name: Build and Deploy
 # 触发器
 on: 
   push:
-# 任务  
+  # 定时器 可以指定时间触发工作流
+  # https://crontab.guru/examples.html 有一些例子可供参考
+  schedule: 
+    - cron: '0 22 * * *'
 jobs:
   build-and-deploy:
   	# 环境
@@ -16,11 +19,24 @@ jobs:
       with:
         node-version: '14'
 
-    - name: Add packages
-      run: npm install
+    - name: Get suggestion
+      run: npm install && npm run suggestion
 
-
-作者：弗兰肯斯坦
-链接：https://juejin.cn/post/6950551485356703751
-来源：稀土掘金
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+- name: Send email
+  uses: dawidd6/action-send-mail@v3.6.0
+ with:
+  	# smtp 服务器地址
+    server_address: smtp.163.com
+    server_port: 465
+    # 账号密码
+    username: ${{secrets.MAIL_USERNAME}}
+    password: ${{secrets.MAIL_PASSWORD}}
+    # 标题
+    subject: 今日穿衣建议
+    # 发送的内容
+    body: file://index.html
+    # 目标邮箱
+    to: 675632418@qq.com
+    from: 163
+    content_type: text/html
+    convert_markdown: true
